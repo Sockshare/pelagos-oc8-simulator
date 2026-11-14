@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Pelagos OC-8 | Soft-Arm Robotic Octopus &amp; 18-DOF Hexapod — Field Simulator</title>
+  <link rel="stylesheet" href="/static/pelagos_sim.css?v=6" />
+</head>
+<body>
+  <div id="app">
+    <!-- Background Technical Drafting Reticle & Polar Rings -->
+    <svg id="drafting-svg" viewBox="0 0 1600 900"></svg>
+
+    <!-- 3D Three.js Studio Viewport -->
+    <canvas id="gl"></canvas>
+
+    <!-- 3D Projected Callout Leader Lines -->
+    <svg id="callout-svg" viewBox="0 0 1600 900"></svg>
+    <div id="callouts-layer"></div>
+
+    <!-- Fixed 1600x900 8-Panel Teardown HUD Overlay -->
+    <div class="hud-layer" id="hud-root">
+      <!-- Top Header Bar -->
+      <header class="top-bar">
+        <div class="brand-box" id="brand-toggle" title="Click to toggle Pelagos OC-8 / Hexapod HX-18">
+          <svg id="brand-icon" width="38" height="38" viewBox="0 0 44 44" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+          <span class="brand-code" id="hdr-code">OC-8</span>
+        </div>
+
+        <div class="title-block">
+          <div class="eyebrow" id="hdr-eyebrow">ROBOTIC CEPHALOPOD · EIGHT-ARM SUBSEA DRONE</div>
+          <div class="main-title"><span id="hdr-title">Pelagos OC-8</span><span class="slash">/</span></div>
+          <div class="sub-title" id="hdr-subtitle">SOFT-ARM MANIPULATOR / FIELD SIMULATOR</div>
+        </div>
+
+        <!-- Simulator Unit Switcher: Pelagos OC-8 (Robotic Octopus) & Hexapod HX-18 (18-DOF Walker) -->
+        <div class="unit-switcher">
+          <div class="unit-switcher-label">UNIT</div>
+          <div class="unit-switcher-btns">
+            <button class="unit-btn active" id="unit-oc8" data-unit="oc8">OC-8</button>
+            <button class="unit-btn" id="unit-hx18" data-unit="hx18">HX-18</button>
+          </div>
+        </div>
+
+        <!-- Top-Center 28-Segment Load Meter -->
+        <div class="load-meter">
+          <div class="load-head">
+            <span id="load-title">JET LOAD</span>
+            <b id="load-pct">12%</b>
+          </div>
+          <div class="load-ticks" id="load-ticks"></div>
+          <div class="load-foot">
+            <span id="load-lbl-1">IDLE</span>
+            <span id="load-lbl-2">CRUISE</span>
+            <span id="load-lbl-3">BURST</span>
+          </div>
+        </div>
+
+        <!-- Top-Right Metadata Strip -->
+        <div class="meta-strip">
+          <div class="meta-col">
+            <span class="meta-k">SIM ID</span>
+            <span class="meta-v" id="meta-simid">OC8-0731</span>
+          </div>
+          <div class="meta-col">
+            <span class="meta-k">RUNTIME</span>
+            <span class="meta-v" id="meta-runtime">00:00:05</span>
+          </div>
+          <div class="meta-col">
+            <span class="meta-k">STATUS</span>
+            <span class="meta-v"><i class="status-dot" id="meta-status-dot"></i><span id="meta-status">HOLDING</span></span>
+          </div>
+          <div class="meta-col">
+            <span class="meta-k">OPERATOR</span>
+            <span class="meta-v" id="meta-operator">TANK 2 · M.S.</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Viewport Corner Labels -->
+      <div class="lbl" id="vp-model-tag" style="position:absolute;left:344px;top:116px;color:#8c867c">MODEL OC-8 · REV B</div>
+      <div class="lbl" id="vp-isolate-tag" style="position:absolute;right:344px;top:116px;color:#8c867c;text-align:right">ISOLATE · OPTICS</div>
+
+      <!-- PANEL 01: JET / GAIT (Top Left) -->
+      <section class="panel" style="left:24px;top:106px;width:292px;height:228px">
+        <div class="p-head">
+          <div class="p-head-left"><i class="p-bar"></i><span id="p1-title">JET</span></div>
+          <span class="p-num">01</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px">
+          <div>
+            <div class="val-lg"><span id="p1-val1">17</span><small id="p1-unit1">KPA</small></div>
+            <div class="lbl" id="p1-sub1" style="margin-top:4px">MANTLE PRESSURE</div>
+          </div>
+          <div style="text-align:right">
+            <div class="val-md" id="p1-val2">6 N</div>
+            <div class="lbl" id="p1-sub2" style="margin-top:6px">THRUST</div>
+          </div>
+        </div>
+        <svg id="p1-chart" width="262" height="94" style="margin-top:8px;display:block;overflow:visible"></svg>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+          <span class="lbl"><span id="p1-foot-k1">PULSE</span> &nbsp;<b class="mono" style="color:var(--ink);font-size:9.5px" id="p1-foot-v1">0.0 HZ</b></span>
+          <span class="lbl" id="p1-foot-v2">SIPHON IDLE</span>
+        </div>
+      </section>
+
+      <!-- PANEL 02: POWER (Middle Left) -->
+      <section class="panel" style="left:24px;top:346px;width:292px;height:146px">
+        <div class="p-head">
+          <div class="p-head-left"><i class="p-bar"></i><span id="p2-title">POWER</span></div>
+          <span class="p-num">02</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+          <div>
+            <div class="val-lg" style="font-size:29px"><span id="p2-batt">86</span><small>%</small></div>
+            <div class="lbl" style="margin-top:4px">BATTERY</div>
+          </div>
+          <div id="p2-cells" style="display:flex;gap:3.5px;align-items:center"></div>
+        </div>
+        <div style="height:1px;background:var(--line);margin:12px 0 9px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div>
+            <div class="lbl">DRAW</div>
+            <div class="mono" style="font-size:12px;font-weight:700;margin-top:3px" id="p2-draw">9.4 W</div>
+          </div>
+          <div>
+            <div class="lbl">CELL</div>
+            <div class="mono" style="font-size:12px;font-weight:700;margin-top:3px" id="p2-cell">3.72 V</div>
+          </div>
+          <div>
+            <div class="lbl">MOTOR</div>
+            <div class="mono" style="font-size:12px;font-weight:700;margin-top:3px" id="p2-temp">24 °C</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANEL 03: ARM CURL / LEG SERVOS (Bottom Left) -->
+      <section class="panel" style="left:24px;top:504px;width:292px;height:248px">
+        <div class="p-head">
+          <div class="p-head-left"><i class="p-bar"></i><span id="p3-title">ARM CURL</span></div>
+          <span class="p-num">03</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:7px">
+          <span class="lbl" id="p3-subtitle">CURL PER ARM · TIP SPIRAL</span>
+          <span class="pill green" id="p3-badge">CURLING</span>
+        </div>
+        <div class="curl-list" id="p3-rows"></div>
+      </section>
+
+      <!-- Viewport Mode Readout (Bottom-Left of Center 3D Stage) -->
+      <div class="mode-banner">
+        <div class="mode-eyebrow" id="mode-eyebrow">OPERATING MODE</div>
+        <div class="mode-big" id="mode-big">HOLDING</div>
+        <div class="mode-sub" id="mode-sub">OPTICS · 0% APART</div>
+      </div>
+
+      <!-- PANEL 04: DEPTH / ATTITUDE (Top Right) -->
+      <section class="panel" style="left:1284px;top:106px;width:292px;height:198px">
+        <div class="p-head">
+          <div class="p-head-left"><i class="p-bar"></i><span id="p4-title">DEPTH</span></div>
+          <span class="p-num">04</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+          <svg id="p4-gauge" width="92" height="92" viewBox="0 0 92 92"></svg>
+          <div style="width:154px;display:grid;grid-template-columns:56px 1fr;row-gap:8px;align-items:baseline">
+            <span class="lbl" id="p4-k1">DEPTH</span>
+            <span class="mono" style="font-size:11px;font-weight:700;text-align:right" id="p4-v1">12.43 M</span>
+            <span class="lbl" id="p4-k2">V/S</span>
+            <span class="mono" style="font-size:11px;font-weight:700;text-align:right" id="p4-v2">+0.02 M/S</span>
+            <span class="lbl">PITCH</span>
+            <span class="mono" style="font-size:11px;font-weight:700;text-align:right" id="p4-v3">+1.77°</span>
+            <span class="lbl">ROLL</span>
+            <span class="mono" style="font-size:11px;font-weight:700;text-align:right" id="p4-v4">+1.79°</span>
+          </div>
+        </div>
+        <div style="height:1px;background:var(--line);margin:12px 0 8px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="lbl">HOLD &nbsp;<b class="mono" style="color:var(--ink);font-size:9.5px" id="p4-hold">STATION</b></span>
+          <span class="lbl">SPEED &nbsp;<b class="mono" style="color:var(--ink);font-size:9.5px" id="p4-speed">0.02 M/S</b></span>
+        </div>
+      </section>
+
+      <!-- PANEL 05: ASSEMBLIES (Upper-Mid Right) -->
+      <section class="panel" style="left:1284px;top:316px;width:292px;height:110px">
+        <div class="p-head">
+          <div class="p-head-left"><i class="p-bar"></i><span>ASSEMBLIES</span></div>
+          <span class="p-num">05</span>
+        </div>
+        <div class="btn-grid" id="p5-assemblies"></div>
+      </section>
+
+      <!-- PANEL 06: DISPLAY (Lower-Mid Right) -->
+      <section class="panel" style="left:1284px;top:438px;width:292px;height:110px">
+        <div class="p-head">
+          <div class="p-head-left"><i class="p-bar"></i><span>DISPLAY</span></div>
+          <span class="p-num">06</span>
+        </div>
+        <div class="btn-grid" id="p6-display"></div>
+      </section>
+
+      <!-- PANEL 07: SUBSYSTEMS (Bottom Right) -->
+      <section class="panel" style="left:1284px;top:560px;width:292px;height:192px">
+        <div class="p-head">
+          <div class="p-head-left"><i class="p-bar"></i><span>SUBSYSTEMS</span></div>
+          <span class="p-num">07</span>
+        </div>
+        <div class="sub-list" id="p7-subsystems"></div>
+      </section>
+
+      <!-- PANEL 08: OPERATION LOG / TIMELINE SCRUBBER (Bottom Center) -->
+      <section class="panel" style="left:332px;top:764px;width:936px;height:92px">
+        <div class="p-head">
+          <div class="p-head-left"><i class="p-bar"></i><span id="p8-title">OPERATION LOG</span></div>
+          <span class="p-num">08</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:18px;margin-top:6px">
+          <button class="play-btn" id="btn-play" title="Play / Pause Auto Tour (Space)">
+            <svg id="play-icon" width="16" height="16" viewBox="0 0 16 16" fill="#ffffff">
+              <rect x="3" y="2" width="3.5" height="12" rx="0.8"></rect>
+              <rect x="9.5" y="2" width="3.5" height="12" rx="0.8"></rect>
+            </svg>
+          </button>
+          <div style="flex:1;position:relative">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <span class="lbl" id="p8-left-lbl">DIVE</span>
+              <span class="lbl" style="color:var(--accent);font-weight:700" id="p8-op-action">OPERATOR · ISOLATE OPTICS</span>
+              <span class="lbl" id="p8-right-lbl">SURFACE</span>
+            </div>
+            <!-- Interactive Timeline Track -->
+            <div id="scrubber-hit" style="position:relative;height:18px;display:flex;align-items:center;cursor:pointer;pointer-events:auto">
+              <div style="position:absolute;left:0;right:0;height:2px;background:#d8d3c8"></div>
+              <div id="scrubber-ticks" style="position:absolute;inset:0;pointer-events:none"></div>
+              <div id="scrubber-fill" style="position:absolute;left:0;height:2.5px;background:var(--accent);width:20%"></div>
+              <div id="scrubber-knob" style="position:absolute;left:20%;width:13px;height:13px;margin-left:-6.5px;border-radius:50%;background:#fbf9f5;border:2.2px solid var(--accent);box-shadow:0 1px 4px rgba(0,0,0,0.18)"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+              <span class="lbl mono" id="p8-time">00:05 / 00:25</span>
+              <span class="lbl" id="p8-actions-count">8 OPERATOR ACTIONS</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Edge Micro-Footer -->
+      <footer class="micro-footer">
+        <div id="footer-left">FIELD SIMULATOR &nbsp;·&nbsp; PROCEDURAL MODEL &nbsp;·&nbsp; 8 ARMS &nbsp;·&nbsp; 2 OPTICS &nbsp;·&nbsp; 1 SIPHON</div>
+        <div><span id="footer-right">PELAGOS MARINE ROBOTICS &nbsp;·&nbsp; DEEP LAB</span><span class="slashes">//////</span></div>
+      </footer>
+
+      <!-- Virtual Operator Cursor -->
+      <div id="op-ring"></div>
+      <div id="op-cursor">
+        <svg width="22" height="22" viewBox="0 0 34 34">
+          <path d="M4 3 L30 13.5 L17.5 17.5 L13.5 30 Z" fill="#18181a" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/three.min.js"></script>
+  <script src="/static/pelagos_sim.js?v=12"></script>
+  <script src="/static/pelagos_fleet.js?v=3"></script>
+</body>
+</html>

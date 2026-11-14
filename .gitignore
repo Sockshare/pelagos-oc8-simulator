@@ -1,0 +1,22 @@
+# Scratch renders, screenshots and logs
+renders/
+*.log
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Headless-Chrome profile directories
+.chrome_p*/
+.chrome_prof/
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
